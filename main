@@ -1,0 +1,57 @@
+from flask import Flask, render_template, request, redirect
+
+app = Flask(__name__)
+
+# 学生信息存储在列表中
+students = []
+
+@app.route('/')
+def index():
+    return render_template('index.html', students=students)
+
+@app.route('/add', methods=['POST'])
+def add():
+    # 从表单中获取学生信息
+    name = request.form.get('name')
+    age = int(request.form.get('age'))
+    score = float(request.form.get('score'))
+    
+    # 创建学生字典并添加到学生列表
+    student = {'name': name, 'age': age, 'score': score}
+    students.append(student)
+    
+    # 重定向到首页
+    return redirect('/')
+
+@app.route('/edit/<int:index>', methods=['GET', 'POST'])
+def edit(index):
+    # 获取指定索引的学生信息
+    student = students[index]
+    
+    if request.method == 'POST':
+        # 从表单中获取修改后的学生信息
+        name = request.form.get('name')
+        age = int(request.form.get('age'))
+        score = float(request.form.get('score'))
+        
+        # 更新学生信息
+        student['name'] = name
+        student['age'] = age
+        student['score'] = score
+        
+        # 重定向到首页
+        return redirect('/')
+    
+    # 渲染编辑页面并传递学生信息
+    return render_template('edit.html', student=student, index=index)
+
+@app.route('/delete/<int:index>', methods=['POST'])
+def delete(index):
+    # 删除指定索引的学生信息
+    del students[index]
+    
+    # 重定向到首页
+    return redirect('/')
+
+if __name__ == '__main__':
+    app.run(debug=True)
